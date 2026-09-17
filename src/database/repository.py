@@ -28,3 +28,28 @@ def upsert_team(
         ],
     )
     return int(result.fetchone()[0])
+
+
+def upsert_season(
+    connection: duckdb.DuckDBPyConnection,
+    season: dict[str, Any],
+) -> int:
+    """Inserta o actualiza una temporada y devuelve su identificador interno."""
+    result = connection.execute(
+        """
+        INSERT INTO seasons (external_id, name, start_date, end_date)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT (external_id) DO UPDATE SET
+            name = EXCLUDED.name,
+            start_date = EXCLUDED.start_date,
+            end_date = EXCLUDED.end_date
+        RETURNING id
+        """,
+        [
+            season["external_id"],
+            season["name"],
+            season["start_date"],
+            season["end_date"],
+        ],
+    )
+    return int(result.fetchone()[0])
