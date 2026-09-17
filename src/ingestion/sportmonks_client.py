@@ -49,6 +49,11 @@ class SportmonksClient:
         response = self._get(f"/teams/{team_id}")
         return response["data"]
 
+    def get_team_seasons(self, team_id: int) -> list[dict[str, Any]]:
+        """Devuelve las temporadas de un equipo por su ID."""
+        response = self._get(f"/seasons/teams/{team_id}")
+        return response["data"]
+
     def close(self) -> None:
         """Cierra la conexión HTTP del cliente."""
         self._http_client.close()
