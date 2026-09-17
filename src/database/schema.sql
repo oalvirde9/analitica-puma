@@ -1,9 +1,16 @@
 -- Esquema principal de Analítica Puma para datos de Liga MX.
 -- No incluye tablas de PPS, TPI, Elo ni modelos de aprendizaje automático.
 
+CREATE SEQUENCE IF NOT EXISTS teams_id_seq START 1;
+CREATE SEQUENCE IF NOT EXISTS seasons_id_seq START 1;
+CREATE SEQUENCE IF NOT EXISTS players_id_seq START 1;
+CREATE SEQUENCE IF NOT EXISTS matches_id_seq START 1;
+CREATE SEQUENCE IF NOT EXISTS match_team_stats_id_seq START 1;
+CREATE SEQUENCE IF NOT EXISTS player_match_stats_id_seq START 1;
+
 -- Catálogo de equipos.
 CREATE TABLE IF NOT EXISTS teams (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY DEFAULT nextval('teams_id_seq'),
     external_id VARCHAR UNIQUE,
     name VARCHAR NOT NULL,
     short_name VARCHAR,
@@ -14,7 +21,7 @@ CREATE TABLE IF NOT EXISTS teams (
 
 -- Catálogo de temporadas.
 CREATE TABLE IF NOT EXISTS seasons (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY DEFAULT nextval('seasons_id_seq'),
     external_id VARCHAR UNIQUE,
     name VARCHAR NOT NULL,
     start_date DATE,
@@ -26,7 +33,7 @@ CREATE TABLE IF NOT EXISTS seasons (
 
 -- Catálogo de jugadores.
 CREATE TABLE IF NOT EXISTS players (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY DEFAULT nextval('players_id_seq'),
     external_id VARCHAR UNIQUE,
     name VARCHAR NOT NULL,
     first_name VARCHAR,
@@ -39,7 +46,7 @@ CREATE TABLE IF NOT EXISTS players (
 
 -- Partidos disputados, con sus equipos, marcador y métricas agregadas.
 CREATE TABLE IF NOT EXISTS matches (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY DEFAULT nextval('matches_id_seq'),
     external_id VARCHAR UNIQUE,
     season_id INTEGER NOT NULL,
     date DATE NOT NULL,
@@ -64,7 +71,7 @@ CREATE TABLE IF NOT EXISTS matches (
 
 -- Estadísticas agregadas de cada equipo en un partido.
 CREATE TABLE IF NOT EXISTS match_team_stats (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY DEFAULT nextval('match_team_stats_id_seq'),
     match_id INTEGER NOT NULL,
     team_id INTEGER NOT NULL,
     possession DOUBLE,
@@ -91,7 +98,7 @@ CREATE TABLE IF NOT EXISTS match_team_stats (
 
 -- Estadísticas individuales de cada jugador en un partido.
 CREATE TABLE IF NOT EXISTS player_match_stats (
-    id INTEGER PRIMARY KEY,
+    id INTEGER PRIMARY KEY DEFAULT nextval('player_match_stats_id_seq'),
     match_id INTEGER NOT NULL,
     player_id INTEGER NOT NULL,
     team_id INTEGER NOT NULL,
