@@ -39,6 +39,11 @@ class SportmonksClient:
         response.raise_for_status()
         return response.json()
 
+    def get_league(self, league_id: int) -> dict[str, Any]:
+        """Devuelve los datos de una liga por su ID."""
+        response = self._get(f"/leagues/{league_id}")
+        return response["data"]
+
     def close(self) -> None:
         """Cierra la conexión HTTP del cliente."""
         self._http_client.close()
