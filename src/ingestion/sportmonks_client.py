@@ -63,6 +63,16 @@ class SportmonksClient:
         response = self._get(f"/schedules/seasons/{season_id}/teams/{team_id}")
         return response["data"]
 
+    def get_fixture(
+        self,
+        fixture_id: int,
+        include: str | None = None,
+    ) -> dict[str, Any]:
+        """Devuelve los datos de un fixture por su ID."""
+        params = {"include": include} if include is not None else None
+        response = self._get(f"/fixtures/{fixture_id}", params=params)
+        return response["data"]
+
     def close(self) -> None:
         """Cierra la conexión HTTP del cliente."""
         self._http_client.close()
