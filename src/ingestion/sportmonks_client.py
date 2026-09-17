@@ -54,6 +54,15 @@ class SportmonksClient:
         response = self._get(f"/seasons/teams/{team_id}")
         return response["data"]
 
+    def get_team_season_schedule(
+        self,
+        season_id: int,
+        team_id: int,
+    ) -> list[dict[str, Any]]:
+        """Devuelve el calendario de un equipo en una temporada."""
+        response = self._get(f"/schedules/seasons/{season_id}/teams/{team_id}")
+        return response["data"]
+
     def close(self) -> None:
         """Cierra la conexión HTTP del cliente."""
         self._http_client.close()
