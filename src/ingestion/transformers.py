@@ -1,5 +1,6 @@
 """Transformaciones puras de respuestas de Sportmonks."""
 
+from datetime import date
 from typing import Any
 
 
@@ -21,4 +22,14 @@ def transform_team(team: dict[str, Any]) -> dict[str, Any]:
         "name": team["name"],
         "short_name": team.get("short_code"),
         "country": country if isinstance(country, str) else None,
+    }
+
+
+def transform_season(season: dict[str, Any]) -> dict[str, Any]:
+    """Transforma una temporada al formato de inserción de seasons."""
+    return {
+        "external_id": str(season["id"]),
+        "name": season["name"],
+        "start_date": date.fromisoformat(season["starting_at"]),
+        "end_date": date.fromisoformat(season["ending_at"]),
     }
