@@ -25,6 +25,77 @@ def transform_team(team: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def transform_player(player: dict[str, Any]) -> dict[str, Any]:
+    """Transforma un jugador nested al formato de inserción de players."""
+    if not isinstance(player, dict):
+        raise ValueError("player debe ser un diccionario")
+
+    external_id = player.get("id")
+    if isinstance(external_id, bool) or external_id is None:
+        raise ValueError("player.id debe existir y no puede ser bool")
+    if isinstance(external_id, int):
+        if external_id <= 0:
+            raise ValueError("player.id debe ser un entero positivo")
+        external_id = str(external_id)
+    elif isinstance(external_id, str):
+        if not external_id.strip() or not external_id.isdigit() or int(external_id) <= 0:
+            raise ValueError("player.id debe ser un ID numérico positivo")
+        external_id = str(int(external_id))
+    else:
+        raise ValueError("player.id debe ser entero o cadena numérica")
+
+    name = player.get("name")
+    if not isinstance(name, str) or not name.strip():
+        raise ValueError("player.name debe ser un string no vacío")
+
+    def optional_string(field: str) -> str | None:
+        value = player.get(field)
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            raise ValueError(f"player.{field} debe ser string o None")
+        return value if value.strip() else None
+
+    def optional_integer(field: str) -> int | None:
+        value = player.get(field)
+        if value is None:
+            return None
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"player.{field} debe ser entero o None")
+        return value
+
+    def positive_integer(field: str) -> int | None:
+        value = optional_integer(field)
+        if value is not None and value <= 0:
+            raise ValueError(f"player.{field} debe ser positivo cuando esté presente")
+        return value
+
+    birth_date = player.get("date_of_birth")
+    if birth_date is not None:
+        if not isinstance(birth_date, str):
+            raise ValueError("player.date_of_birth debe ser string o None")
+        try:
+            birth_date = date.fromisoformat(birth_date)
+        except ValueError as exc:
+            raise ValueError("player.date_of_birth debe tener formato YYYY-MM-DD") from exc
+
+    return {
+        "external_id": external_id,
+        "name": name,
+        "first_name": optional_string("firstname"),
+        "last_name": optional_string("lastname"),
+        "display_name": optional_string("display_name"),
+        "common_name": optional_string("common_name"),
+        "position_id": optional_integer("position_id"),
+        "detailed_position_id": optional_integer("detailed_position_id"),
+        "date_of_birth": birth_date,
+        "nationality_id": optional_integer("nationality_id"),
+        "country_id": optional_integer("country_id"),
+        "height": positive_integer("height"),
+        "weight": positive_integer("weight"),
+    }
+
+
 def extract_unique_teams(
     fixtures: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
