@@ -5,6 +5,63 @@ from typing import Any
 import duckdb
 
 
+def upsert_player(
+    conn: duckdb.DuckDBPyConnection,
+    player: dict[str, Any],
+) -> int:
+    """Inserta o actualiza un jugador y devuelve su identificador interno."""
+    result = conn.execute(
+        """
+        INSERT INTO players (
+            external_id,
+            name,
+            first_name,
+            last_name,
+            display_name,
+            common_name,
+            position_id,
+            detailed_position_id,
+            date_of_birth,
+            nationality_id,
+            country_id,
+            height,
+            weight
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT (external_id) DO UPDATE SET
+            name = EXCLUDED.name,
+            first_name = EXCLUDED.first_name,
+            last_name = EXCLUDED.last_name,
+            display_name = EXCLUDED.display_name,
+            common_name = EXCLUDED.common_name,
+            position_id = EXCLUDED.position_id,
+            detailed_position_id = EXCLUDED.detailed_position_id,
+            date_of_birth = EXCLUDED.date_of_birth,
+            nationality_id = EXCLUDED.nationality_id,
+            country_id = EXCLUDED.country_id,
+            height = EXCLUDED.height,
+            weight = EXCLUDED.weight
+        RETURNING id
+        """,
+        [
+            player["external_id"],
+            player["name"],
+            player["first_name"],
+            player["last_name"],
+            player["display_name"],
+            player["common_name"],
+            player["position_id"],
+            player["detailed_position_id"],
+            player["date_of_birth"],
+            player["nationality_id"],
+            player["country_id"],
+            player["height"],
+            player["weight"],
+        ],
+    )
+    return int(result.fetchone()[0])
+
+
 def upsert_team(
     connection: duckdb.DuckDBPyConnection,
     team: dict[str, Any],
