@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS matches (
     away_score INTEGER,
     home_xg DOUBLE,
     away_xg DOUBLE,
-    status VARCHAR NOT NULL,
+    status VARCHAR,
     venue VARCHAR,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (season_id) REFERENCES seasons (id),
