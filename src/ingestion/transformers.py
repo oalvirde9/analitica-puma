@@ -1,6 +1,6 @@
 """Transformaciones puras de respuestas de Sportmonks."""
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any
 
 
@@ -39,6 +39,82 @@ def extract_unique_teams(
         teams_by_external_id.values(),
         key=lambda team: int(team["external_id"]),
     )
+
+
+def transform_match(
+    fixture: dict[str, Any],
+    season_internal_id: int,
+    team_id_by_external_id: dict[str, int],
+) -> dict[str, Any]:
+    """Transforma un fixture al formato de inserción de matches."""
+    participants = fixture.get("participants", [])
+    home_participants = [
+        participant
+        for participant in participants
+        if isinstance(participant.get("meta"), dict)
+        and participant["meta"].get("location") == "home"
+    ]
+    away_participants = [
+        participant
+        for participant in participants
+        if isinstance(participant.get("meta"), dict)
+        and participant["meta"].get("location") == "away"
+    ]
+    if len(home_participants) != 1:
+        raise ValueError("El fixture debe contener exactamente un participante home")
+    if len(away_participants) != 1:
+        raise ValueError("El fixture debe contener exactamente un participante away")
+
+    home_external_id = str(home_participants[0]["id"])
+    away_external_id = str(away_participants[0]["id"])
+    if home_external_id not in team_id_by_external_id:
+        raise ValueError(
+            f"No existe ID interno para el equipo home {home_external_id}"
+        )
+    if away_external_id not in team_id_by_external_id:
+        raise ValueError(
+            f"No existe ID interno para el equipo away {away_external_id}"
+        )
+
+    current_scores = [
+        score
+        for score in fixture.get("scores", [])
+        if score.get("description") == "CURRENT"
+    ]
+
+    def get_current_score(participant_id: str, location: str) -> Any:
+        matching_scores = [
+            score
+            for score in current_scores
+            if str(score.get("participant_id")) == participant_id
+        ]
+        if len(matching_scores) != 1:
+            raise ValueError(
+                f"Debe existir exactamente un score CURRENT para {location}"
+            )
+        value = matching_scores[0].get("score")
+        if isinstance(value, dict):
+            value = value.get("goals")
+        if value is None:
+            raise ValueError(f"El score CURRENT de {location} no contiene goles")
+        return value
+
+    home_score = get_current_score(home_external_id, "home")
+    away_score = get_current_score(away_external_id, "away")
+
+    return {
+        "external_id": str(fixture["id"]),
+        "season_id": season_internal_id,
+        "date": datetime.strptime(fixture["starting_at"], "%Y-%m-%d %H:%M:%S").date(),
+        "home_team_id": team_id_by_external_id[home_external_id],
+        "away_team_id": team_id_by_external_id[away_external_id],
+        "home_score": home_score,
+        "away_score": away_score,
+        "home_xg": None,
+        "away_xg": None,
+        "status": None,
+        "venue": None,
+    }
 
 
 def transform_season(season: dict[str, Any]) -> dict[str, Any]:
