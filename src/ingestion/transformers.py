@@ -1,6 +1,7 @@
 """Transformaciones puras de respuestas de Sportmonks."""
 
 from datetime import date, datetime
+import math
 from typing import Any
 
 
@@ -93,6 +94,199 @@ def transform_player(player: dict[str, Any]) -> dict[str, Any]:
         "country_id": optional_integer("country_id"),
         "height": positive_integer("height"),
         "weight": positive_integer("weight"),
+    }
+
+
+def transform_player_match_stats(
+    lineup: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Transforma una participación identificable al formato de player_match_stats."""
+    if not isinstance(lineup, dict):
+        raise ValueError("lineup debe ser un diccionario")
+
+    details = lineup.get("details", [])
+    if details is None:
+        details = []
+    if not isinstance(details, list):
+        raise ValueError("lineup.details debe ser una lista o None")
+
+    details_by_type: dict[Any, dict[str, Any]] = {}
+    for detail in details:
+        if not isinstance(detail, dict):
+            raise ValueError("Cada detail debe ser un diccionario")
+        type_id = detail.get("type_id")
+        if type_id in details_by_type:
+            raise ValueError(f"Detail duplicado para type_id={type_id}")
+        details_by_type[type_id] = detail
+
+    minutes_detail = details_by_type.get(119)
+    if minutes_detail is None:
+        return None
+    minutes_data = minutes_detail.get("data")
+    if not isinstance(minutes_data, dict) or "value" not in minutes_data:
+        raise ValueError("Minutes Played debe contener data.value")
+    minutes = minutes_data["value"]
+    if isinstance(minutes, bool) or not isinstance(minutes, int):
+        raise ValueError("Minutes Played debe ser un entero")
+    if minutes < 0:
+        raise ValueError("Minutes Played no puede ser negativo")
+    if minutes == 0:
+        return None
+
+    def canonical_external_id(value: Any, field: str) -> str:
+        if isinstance(value, bool) or value is None:
+            raise ValueError(f"{field} debe ser un ID positivo")
+        if isinstance(value, int):
+            if value <= 0:
+                raise ValueError(f"{field} debe ser un ID positivo")
+            return str(value)
+        if isinstance(value, str):
+            if not value.strip() or not value.isdigit() or int(value) <= 0:
+                raise ValueError(f"{field} debe ser un ID numérico positivo")
+            return str(int(value))
+        raise ValueError(f"{field} debe ser entero o cadena numérica")
+
+    player = lineup.get("player")
+    if not isinstance(player, dict):
+        raise ValueError("Una participación real debe contener lineup.player")
+    external_player_id = canonical_external_id(player.get("id"), "player.id")
+    external_team_id = canonical_external_id(lineup.get("team_id"), "lineup.team_id")
+
+    lineup_type = lineup.get("type_id")
+    if lineup_type == 11:
+        started = True
+    elif lineup_type == 12:
+        started = False
+    else:
+        raise ValueError("lineup.type_id debe ser 11 o 12")
+
+    count_fields = {
+        52: "goals",
+        79: "assists",
+        42: "shots",
+        86: "shots_on_target",
+        80: "passes",
+        116: "accurate_passes",
+        117: "key_passes",
+        108: "dribble_attempts",
+        109: "successful_dribbles",
+        98: "total_crosses",
+        99: "accurate_crosses",
+        120: "touches",
+        27269: "passes_in_final_third",
+        27272: "backward_passes",
+        27273: "possession_lost",
+        94: "dispossessed",
+        78: "tackles",
+        100: "interceptions",
+        27271: "ball_recoveries",
+        101: "clearances",
+        105: "total_duels",
+        106: "duels_won",
+        1491: "duels_lost",
+        27274: "aerials",
+        107: "aerials_won",
+        27266: "aerials_lost",
+        110: "dribbled_past",
+        56: "fouls",
+        96: "fouls_drawn",
+        84: "yellow_cards",
+        83: "red_cards",
+        122: "long_balls",
+        123: "long_balls_won",
+        57: "saves",
+        88: "goals_conceded",
+        104: "saves_inside_box",
+    }
+
+    def get_count(type_id: int) -> int | None:
+        detail = details_by_type.get(type_id)
+        if detail is None:
+            return None
+        data = detail.get("data")
+        if not isinstance(data, dict) or "value" not in data:
+            raise ValueError(f"Detail type_id={type_id} debe contener data.value")
+        value = data["value"]
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise ValueError(f"El valor de type_id={type_id} debe ser entero")
+        if value < 0:
+            raise ValueError(f"El valor de type_id={type_id} no puede ser negativo")
+        return value
+
+    def get_provider_rating() -> float | None:
+        detail = details_by_type.get(118)
+        if detail is None:
+            return None
+        data = detail.get("data")
+        if not isinstance(data, dict) or "value" not in data:
+            raise ValueError("Provider rating debe contener data.value")
+        value = data["value"]
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError("Provider rating debe ser int o float")
+        if not math.isfinite(value):
+            raise ValueError("Provider rating debe ser finito")
+        return float(value)
+
+    values = {field: get_count(type_id) for type_id, field in count_fields.items()}
+    relationships = (
+        ("shots_on_target", "shots"),
+        ("accurate_passes", "passes"),
+        ("accurate_crosses", "total_crosses"),
+        ("successful_dribbles", "dribble_attempts"),
+        ("duels_won", "total_duels"),
+        ("long_balls_won", "long_balls"),
+        ("aerials_won", "aerials"),
+    )
+    for lower, upper in relationships:
+        lower_value = values[lower]
+        upper_value = values[upper]
+        if lower_value is not None and upper_value is not None and lower_value > upper_value:
+            raise ValueError(f"{lower} no puede ser mayor que {upper}")
+
+    return {
+        "external_player_id": external_player_id,
+        "external_team_id": external_team_id,
+        "minutes": minutes,
+        "started": started,
+        "goals": values["goals"],
+        "assists": values["assists"],
+        "shots": values["shots"],
+        "shots_on_target": values["shots_on_target"],
+        "xg": None,
+        "xa": None,
+        "passes": values["passes"],
+        "accurate_passes": values["accurate_passes"],
+        "key_passes": values["key_passes"],
+        "dribble_attempts": values["dribble_attempts"],
+        "successful_dribbles": values["successful_dribbles"],
+        "total_crosses": values["total_crosses"],
+        "accurate_crosses": values["accurate_crosses"],
+        "touches": values["touches"],
+        "passes_in_final_third": values["passes_in_final_third"],
+        "backward_passes": values["backward_passes"],
+        "possession_lost": values["possession_lost"],
+        "dispossessed": values["dispossessed"],
+        "tackles": values["tackles"],
+        "interceptions": values["interceptions"],
+        "ball_recoveries": values["ball_recoveries"],
+        "clearances": values["clearances"],
+        "total_duels": values["total_duels"],
+        "duels_won": values["duels_won"],
+        "duels_lost": values["duels_lost"],
+        "aerials": values["aerials"],
+        "aerials_won": values["aerials_won"],
+        "aerials_lost": values["aerials_lost"],
+        "dribbled_past": values["dribbled_past"],
+        "fouls": values["fouls"],
+        "fouls_drawn": values["fouls_drawn"],
+        "yellow_cards": values["yellow_cards"],
+        "red_cards": values["red_cards"],
+        "long_balls": values["long_balls"],
+        "long_balls_won": values["long_balls_won"],
+        "provider_rating": get_provider_rating(),
+        "saves": values["saves"],
+        "goals_conceded": values["goals_conceded"],
+        "saves_inside_box": values["saves_inside_box"],
     }
 
 
