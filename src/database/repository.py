@@ -5,6 +5,54 @@ from typing import Any
 import duckdb
 
 
+def get_team_id_by_external_id(
+    conn: duckdb.DuckDBPyConnection,
+    external_id: str,
+) -> int:
+    """Resuelve el ID interno de un equipo por su external_id."""
+    if not isinstance(external_id, str) or not external_id.strip():
+        raise ValueError("team external_id debe ser un string no vacío")
+    result = conn.execute(
+        "SELECT id FROM teams WHERE external_id = ?",
+        [external_id],
+    ).fetchone()
+    if result is None:
+        raise LookupError(f"Team external_id no encontrado: {external_id}")
+    return int(result[0])
+
+
+def get_player_id_by_external_id(
+    conn: duckdb.DuckDBPyConnection,
+    external_id: str,
+) -> int:
+    """Resuelve el ID interno de un jugador por su external_id."""
+    if not isinstance(external_id, str) or not external_id.strip():
+        raise ValueError("player external_id debe ser un string no vacío")
+    result = conn.execute(
+        "SELECT id FROM players WHERE external_id = ?",
+        [external_id],
+    ).fetchone()
+    if result is None:
+        raise LookupError(f"Player external_id no encontrado: {external_id}")
+    return int(result[0])
+
+
+def get_match_id_by_external_id(
+    conn: duckdb.DuckDBPyConnection,
+    external_id: str,
+) -> int:
+    """Resuelve el ID interno de un partido por su external_id."""
+    if not isinstance(external_id, str) or not external_id.strip():
+        raise ValueError("match external_id debe ser un string no vacío")
+    result = conn.execute(
+        "SELECT id FROM matches WHERE external_id = ?",
+        [external_id],
+    ).fetchone()
+    if result is None:
+        raise LookupError(f"Match external_id no encontrado: {external_id}")
+    return int(result[0])
+
+
 def upsert_player(
     conn: duckdb.DuckDBPyConnection,
     player: dict[str, Any],
