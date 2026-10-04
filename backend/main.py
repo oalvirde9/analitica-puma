@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -18,12 +19,19 @@ app = FastAPI(
     version="0.1.0",
 )
 
+frontend_origin = os.getenv("FRONTEND_ORIGIN")
+
+allowed_origins = [
+    "http://localhost:4200",
+    "http://127.0.0.1:4200",
+]
+
+if frontend_origin:
+    allowed_origins.append(frontend_origin.rstrip("/"))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:4200",
-        "http://127.0.0.1:4200",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api.config';
 
 export interface Team {
   id: number;
@@ -83,10 +84,10 @@ export class MatchesService {
   private readonly http = inject(HttpClient);
 
   private readonly matchesApiUrl =
-    'http://127.0.0.1:8000/api/matches';
+    `${API_BASE_URL}/api/matches`;
 
   private readonly tournamentApiUrl =
-    'http://127.0.0.1:8000/api/tournaments/current';
+    `${API_BASE_URL}/api/tournaments/current`;
 
   getLatest(): Observable<Fixture> {
     return this.http.get<Fixture>(

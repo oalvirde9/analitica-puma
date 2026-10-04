@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api.config';
 
 export interface ClusterPlayer {
   player_id: number;
@@ -54,7 +55,7 @@ export interface PcaResponse {
 })
 export class ClustersService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://127.0.0.1:8000/api';
+  private readonly apiUrl = `${API_BASE_URL}/api`;
 
   getClusters(tournament: string): Observable<ClusterResponse> {
     return this.http.get<ClusterResponse>(
