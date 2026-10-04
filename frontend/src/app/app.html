@@ -1,0 +1,238 @@
+<div class="app-shell">
+  <aside class="sidebar" aria-label="Navegación principal">
+    <div class="brand"><div class="brand-mark" aria-hidden="true">P</div><div><span class="brand-name">Analítica <strong>Puma</strong></span><span class="brand-caption">Performance lab</span></div></div>
+    <nav class="main-nav"><span class="nav-label">Workspace</span><a
+  class="nav-item"
+  href="/dashboard"
+  [class.active]="currentPage === 'dashboard'"
+  [attr.aria-current]="currentPage === 'dashboard' ? 'page' : null"
+  (click)="$event.preventDefault(); navigateTo('dashboard')"
+><span class="nav-icon">⌂</span><span>Dashboard</span></a><a
+  class="nav-item"
+  href="/partidos"
+  [class.active]="currentPage === 'partidos'"
+  [attr.aria-current]="currentPage === 'partidos' ? 'page' : null"
+  (click)="$event.preventDefault(); navigateTo('partidos')"
+><span class="nav-icon">◈</span><span>Partidos</span></a><a
+  class="nav-item"
+  href="/jugadores"
+  [class.active]="currentPage === 'jugadores'"
+  [attr.aria-current]="currentPage === 'jugadores' ? 'page' : null"
+  (click)="$event.preventDefault(); navigateTo('jugadores')"
+><span class="nav-icon">♙</span><span>Jugadores</span></a><a class="nav-item" href="#pps"><span class="nav-icon">◎</span><span>PPS</span><span class="soon">Próximo</span></a><a class="nav-item" href="#equipo"><span class="nav-icon">◇</span><span>Equipo</span></a><a class="nav-item" href="#modelos"><span class="nav-icon">⌁</span><span>Modelos</span><span class="soon">Próximo</span></a></nav>
+    <div class="sidebar-footer"><div class="live-dot"></div><div><strong>Datos de temporada</strong><span>Actualizados hoy, 09:42</span></div></div>
+  </aside>
+
+  <main class="main-content" id="dashboard">
+    <header class="topbar"><div class="mobile-brand"><span class="brand-mark">P</span><span>Analítica <strong>Puma</strong></span></div><div class="context"><span class="eyebrow">Centro de rendimiento</span><h1>
+  @switch (currentPage) {
+    @case ('partidos') {
+      Partidos
+    }
+    @case ('jugadores') {
+      Jugadores
+    }
+    @default {
+      Dashboard
+    }
+  }
+</h1></div><div class="topbar-actions"><button class="icon-button" aria-label="Notificaciones"><span>♧</span><i></i></button><div class="user-chip"><div class="avatar">AP</div><div class="user-details"><strong>Analista Puma</strong><span>Staff técnico</span></div><span class="chevron">⌄</span></div></div></header>
+    <div class="content-wrap">
+      @if (currentPage !== 'dashboard') {
+        <router-outlet></router-outlet>
+      }
+      @if (currentPage === 'dashboard') {
+      <section class="hero-row"><div><p class="welcome">Bienvenido de vuelta, analista</p><h2>Lectura general del equipo <span>↗</span></h2><p class="muted">Una vista rápida del rendimiento de Pumas UNAM esta temporada.</p></div><div class="filters"><button class="select-button">Pumas UNAM <span>⌄</span></button><button class="select-button">Temporada 2026/27 <span>⌄</span></button></div></section>
+      <section class="matches-grid" id="resumen-partidos">
+        <article class="panel latest-match-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="section-kicker">Sportmonks · Datos reales</span>
+              <h3>Último resultado</h3>
+            </div>
+          </div>
+
+          @if (error) {
+            <p>{{ error }}</p>
+          } @else if (!latestMatch) {
+            <p>Cargando último partido...</p>
+          } @else {
+            <div class="match-date">
+              <strong>{{ formatMatchDate(latestMatch.starting_at) }}</strong>
+              <span>{{ formatMatchTime(latestMatch.starting_at) }} h · Ciudad de México</span>
+            </div>
+
+            <div class="scoreboard">
+              <div class="match-team">
+                <img
+                  [src]="latestMatch.home_team.image"
+                  [alt]="latestMatch.home_team.name"
+                  width="52"
+                  height="52"
+                >
+                <strong>{{ latestMatch.home_team.name }}</strong>
+              </div>
+
+              <div class="match-score">
+                <strong>{{ latestMatch.home_team.score }}</strong>
+                <span>–</span>
+                <strong>{{ latestMatch.away_team.score }}</strong>
+              </div>
+
+              <div class="match-team">
+                <img
+                  [src]="latestMatch.away_team.image"
+                  [alt]="latestMatch.away_team.name"
+                  width="52"
+                  height="52"
+                >
+                <strong>{{ latestMatch.away_team.name }}</strong>
+              </div>
+            </div>
+          }
+        </article>
+
+        <article class="panel upcoming-panel">
+          <div class="panel-heading">
+            <div>
+              <span class="section-kicker">Calendario</span>
+              <h3>Próximos partidos</h3>
+            </div>
+          </div>
+
+          @if (error) {
+            <p>{{ error }}</p>
+          } @else if (!upcomingMatches.length) {
+            <p>Cargando calendario...</p>
+          } @else {
+            <div class="upcoming-list">
+              @for (match of upcomingMatches; track match.fixture_id) {
+                <div class="upcoming-match">
+                  <div class="upcoming-date">
+                    <strong>{{ formatMatchDate(match.starting_at) }}</strong>
+                    <span>{{ formatMatchTime(match.starting_at) }} h</span>
+                  </div>
+
+                  <div class="upcoming-teams">
+                    <span>
+                      <img
+                        [src]="match.home_team.image"
+                        [alt]="match.home_team.name"
+                        width="28"
+                        height="28"
+                      >
+                      {{ match.home_team.short_code }}
+                    </span>
+
+                    <strong>vs</strong>
+
+                    <span>
+                      <img
+                        [src]="match.away_team.image"
+                        [alt]="match.away_team.name"
+                        width="28"
+                        height="28"
+                      >
+                      {{ match.away_team.short_code }}
+                    </span>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </article>
+      </section>
+
+      <section class="stat-grid" aria-label="Resumen del Apertura 2026">
+        <article class="stat-card accent-blue">
+          <div class="stat-top">
+            <span class="stat-label">Posición en Liga MX</span>
+            <span class="stat-icon">◈</span>
+          </div>
+          <strong class="stat-value">
+            @if (pumasStanding) {
+              {{ pumasStanding.position }}°
+            } @else {
+              —
+            }
+          </strong>
+          <div class="stat-foot">
+            <span>Apertura 2026</span>
+          </div>
+        </article>
+
+        <article class="stat-card accent-gold">
+          <div class="stat-top">
+            <span class="stat-label">Puntos</span>
+            <span class="stat-icon">◎</span>
+          </div>
+          <strong class="stat-value">
+            @if (pumasStanding) {
+              {{ pumasStanding.points }}
+            } @else {
+              —
+            }
+          </strong>
+          <div class="stat-foot">
+            @if (pumasStanding) {
+              <span>{{ pumasStanding.played }} partidos jugados</span>
+            }
+          </div>
+        </article>
+
+        <article class="stat-card accent-slate">
+          <div class="stat-top">
+            <span class="stat-label">Goles a favor</span>
+            <span class="stat-icon">◷</span>
+          </div>
+          <strong class="stat-value">
+            @if (pumasStanding) {
+              {{ pumasStanding.goals_for }}
+            } @else {
+              —
+            }
+          </strong>
+          <div class="stat-foot">
+            @if (pumasStanding) {
+              <span>{{ pumasStanding.goals_against }} goles en contra</span>
+            }
+          </div>
+        </article>
+
+        <article class="stat-card accent-ink">
+          <div class="stat-top">
+            <span class="stat-label">Diferencia de goles</span>
+            <span class="stat-icon">◇</span>
+          </div>
+          <strong class="stat-value">
+            @if (pumasStanding) {
+              @if (pumasStanding.goal_difference > 0) {
+                +{{ pumasStanding.goal_difference }}
+              } @else {
+                {{ pumasStanding.goal_difference }}
+              }
+            } @else {
+              —
+            }
+          </strong>
+          <div class="stat-foot">
+            @if (pumasStanding) {
+              <span>
+                {{ pumasStanding.wins }} G ·
+                {{ pumasStanding.draws }} E ·
+                {{ pumasStanding.losses }} P
+              </span>
+            }
+          </div>
+        </article>
+      </section>
+      <section class="dashboard-grid">
+        <article class="panel performance-panel"><div class="panel-heading"><div><span class="section-kicker">Análisis de temporada</span><h3>Rendimiento del equipo</h3></div><button class="more-button" aria-label="Más opciones">•••</button></div><div class="chart-summary"><div><span class="summary-label">Índice de rendimiento</span><strong>78.4 <small>/ 100</small></strong></div><span class="trend up">↗ 6.8% este mes</span></div><div class="chart" aria-label="Gráfica mock del índice de rendimiento por jornada"><div class="y-axis"><span>100</span><span>75</span><span>50</span><span>25</span><span>0</span></div><div class="chart-area"><div class="grid-line line-1"></div><div class="grid-line line-2"></div><div class="grid-line line-3"></div><div class="grid-line line-4"></div><svg class="line-chart" viewBox="0 0 700 220" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c9a45c" stop-opacity=".28"/><stop offset="1" stop-color="#c9a45c" stop-opacity="0"/></linearGradient></defs><path class="chart-area-fill" d="M0,170 C45,155 60,160 95,138 S145,145 180,116 S230,132 265,100 S310,112 350,86 S400,105 438,72 S490,91 525,61 S575,83 610,46 S665,55 700,30 L700,220 L0,220 Z"/><path class="chart-line" d="M0,170 C45,155 60,160 95,138 S145,145 180,116 S230,132 265,100 S310,112 350,86 S400,105 438,72 S490,91 525,61 S575,83 610,46 S665,55 700,30"/><circle cx="700" cy="30" r="5" class="chart-dot"/></svg><div class="x-axis"><span>J1</span><span>J4</span><span>J8</span><span>J12</span><span>J16</span><span>J20</span><span>J24</span><span>J28</span><span>J34</span></div></div></div><div class="chart-legend"><span><i class="legend-dot gold"></i>Rendimiento general</span><span><i class="legend-dot gray"></i>Promedio liga</span></div></article>
+        <article class="panel insight-panel"><div class="panel-heading"><div><span class="section-kicker">Último corte</span><h3>Resumen del equipo</h3></div><span class="live-pill"><i></i> En forma</span></div><div class="donut-wrap"><div class="donut"><div class="donut-center"><strong>82%</strong><span>eficiencia</span></div></div><div class="donut-copy"><strong>Balance positivo</strong><p>El equipo mantiene una progresión constante en las últimas 5 jornadas.</p></div></div><div class="mini-metrics"><div><span>Goles a favor</span><strong>1.6 <small>por partido</small></strong></div><div><span>Posesión media</span><strong>54.8<small>%</small></strong></div></div><button class="text-button">Ver análisis completo <span>→</span></button></article>
+      </section>
+      <section class="panel players-panel" id="jugadores"><div class="panel-heading"><div><span class="section-kicker">Plantel 2025/26</span><h3>Jugadores destacados</h3></div><button class="outline-button">Ver todos <span>→</span></button></div><div class="table-scroll"><table><thead><tr><th>Jugador</th><th>Posición</th><th>Partidos</th><th>Minutos</th><th>Pases/90</th><th>Duelos ganados <span class="info">i</span></th></tr></thead><tbody><tr><td><span class="player-avatar avatar-one">NA</span><strong>Nathanael Ananias da Silva</strong></td><td><span class="position-tag">DEF</span> Defensa</td><td>28</td><td>2,318'</td><td class="highlight">48.6</td><td><div class="progress-cell"><span>71%</span><i><b style="width: 71%"></b></i></div></td></tr><tr><td><span class="player-avatar avatar-two">KN</span><strong>Keylor Navas</strong></td><td><span class="position-tag goalkeeper">POR</span> Portero</td><td>26</td><td>2,340'</td><td class="highlight">31.2</td><td><div class="progress-cell"><span>78%</span><i><b style="width: 78%"></b></i></div></td></tr><tr><td><span class="player-avatar avatar-three">AA</span><strong>Álvaro Angulo</strong></td><td><span class="position-tag">DEF</span> Defensa</td><td>25</td><td>2,071'</td><td class="highlight">44.8</td><td><div class="progress-cell"><span>64%</span><i><b style="width: 64%"></b></i></div></td></tr><tr><td><span class="player-avatar avatar-four">AC</span><strong>Adalberto Carrasquilla</strong></td><td><span class="position-tag midfield">MED</span> Mediocampo</td><td>30</td><td>2,492'</td><td class="highlight">59.4</td><td><div class="progress-cell"><span>67%</span><i><b style="width: 67%"></b></i></div></td></tr><tr><td><span class="player-avatar avatar-five">PV</span><strong>Pedro Vite</strong></td><td><span class="position-tag midfield">MED</span> Mediocampo</td><td>24</td><td>1,882'</td><td class="highlight">62.1</td><td><div class="progress-cell"><span>61%</span><i><b style="width: 61%"></b></i></div></td></tr></tbody></table></div></section>
+      <footer class="footer-note">Analítica Puma <span>•</span> Panel de demostración <span>•</span> Datos mock para temporada 2025/26</footer>
+      }
+    </div>
+  </main>
+</div>

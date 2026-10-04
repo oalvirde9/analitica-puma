@@ -13,3 +13,11 @@ data/external/
 *.duckdb.wal
 
 .DS_Store
+
+# Backups de desarrollo
+*.bak
+*.bak-*
+*.bak_*
+.pre-ng-new-backup/
+
+

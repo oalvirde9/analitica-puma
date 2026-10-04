@@ -1,0 +1,158 @@
+<section class="tournament-section" id="partidos">
+  <div class="tournament-heading">
+    <div>
+      <span class="section-kicker">Liga MX · Apertura 2026</span>
+      <h2>Partidos y clasificación</h2>
+      <p class="muted">
+        Calendario completo de Pumas UNAM y tabla general del torneo.
+      </p>
+    </div>
+  </div>
+
+  <div class="tournament-grid">
+    <article class="panel tournament-calendar-panel">
+      <div class="panel-heading">
+        <div>
+          <span class="section-kicker">17 jornadas</span>
+          <h3>Calendario de Pumas</h3>
+        </div>
+      </div>
+
+      @if (!tournamentFixtures.length) {
+        <p class="matches-message">Cargando calendario...</p>
+      } @else {
+        <div class="season-fixtures">
+          @for (match of tournamentFixtures; track match.fixture_id) {
+            <div class="season-fixture">
+              <div class="fixture-round">
+                J{{ match.round }}
+              </div>
+
+              <div class="fixture-date">
+                <strong>
+                  {{ formatMatchDate(match.starting_at) }}
+                </strong>
+                <span>
+                  {{ formatMatchTime(match.starting_at) }} h
+                </span>
+              </div>
+
+              <div class="fixture-team fixture-home">
+                <span>{{ match.home_team.short_code }}</span>
+                <img
+                  [src]="match.home_team.image"
+                  [alt]="match.home_team.name"
+                  width="30"
+                  height="30"
+                >
+              </div>
+
+              <div class="fixture-score">
+                @if (
+                  match.home_team.score !== null &&
+                  match.away_team.score !== null
+                ) {
+                  <strong>
+                    {{ match.home_team.score }}
+                    –
+                    {{ match.away_team.score }}
+                  </strong>
+                } @else {
+                  <span>vs</span>
+                }
+              </div>
+
+              <div class="fixture-team fixture-away">
+                <img
+                  [src]="match.away_team.image"
+                  [alt]="match.away_team.name"
+                  width="30"
+                  height="30"
+                >
+                <span>{{ match.away_team.short_code }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </article>
+
+    <article class="panel standings-panel">
+      <div class="panel-heading">
+        <div>
+          <span class="section-kicker">Tabla general</span>
+          <h3>Clasificación Liga MX</h3>
+        </div>
+      </div>
+
+      @if (!tournamentStandings.length) {
+        <p class="matches-message">Cargando clasificación...</p>
+      } @else {
+        <div class="standings-scroll">
+          <table class="standings-table">
+            <thead>
+              <tr>
+                <th>Pos</th>
+                <th>Equipo</th>
+                <th>PJ</th>
+                <th>PG</th>
+                <th>PE</th>
+                <th>PP</th>
+                <th>GF</th>
+                <th>GC</th>
+                <th>DG</th>
+                <th>Pts</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (
+                row of tournamentStandings;
+                track row.team.id
+              ) {
+                <tr
+                  [class.pumas-row]="row.team.id === 2989"
+                >
+                  <td>
+                    <strong>{{ row.position }}</strong>
+                  </td>
+
+                  <td>
+                    <div class="standing-team">
+                      <img
+                        [src]="row.team.image"
+                        [alt]="row.team.name"
+                        width="26"
+                        height="26"
+                      >
+                      <span>{{ row.team.name }}</span>
+                    </div>
+                  </td>
+
+                  <td>{{ row.played }}</td>
+                  <td>{{ row.wins }}</td>
+                  <td>{{ row.draws }}</td>
+                  <td>{{ row.losses }}</td>
+                  <td>{{ row.goals_for }}</td>
+                  <td>{{ row.goals_against }}</td>
+
+                  <td>
+                    @if (row.goal_difference > 0) {
+                      +{{ row.goal_difference }}
+                    } @else {
+                      {{ row.goal_difference }}
+                    }
+                  </td>
+
+                  <td>
+                    <strong>{{ row.points }}</strong>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </article>
+  </div>
+</section>
