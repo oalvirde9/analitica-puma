@@ -16,13 +16,7 @@ import {
   template: `
     <section class="panel">
       <div>
-        <span>ANÁLISIS DE PERFILES</span>
         <h2>Perfiles de jugadores</h2>
-        <p>
-          Agrupación de jugadores según similitud en sus características
-          estadísticas. Los clusters describen perfiles de juego, no niveles
-          de rendimiento.
-        </p>
       </div>
 
       <div class="tournament-switch">
