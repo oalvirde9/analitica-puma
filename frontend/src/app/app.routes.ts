@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { DashboardPage } from './pages/dashboard/dashboard';
+import { ClustersPage } from './pages/clusters/clusters';
 import { JugadoresPage } from './pages/jugadores/jugadores';
 import { PartidosPage } from './pages/partidos/partidos';
 
@@ -24,6 +25,11 @@ export const routes: Routes = [
     path: 'jugadores',
     component: JugadoresPage,
     title: 'Jugadores · Analítica Puma'
+  },
+  {
+    path: 'clusters',
+    component: ClustersPage,
+    title: 'Perfiles · Analítica Puma'
   },
   {
     path: '**',

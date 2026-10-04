@@ -1274,3 +1274,108 @@ button,input,select,textarea { font-family:inherit; }
   background: transparent;
   box-shadow: 0 4px 12px #0003;
 }
+
+/* =========================================================
+   PERFILES DE JUGADORES
+   ========================================================= */
+
+.tournament-switch {
+  display: inline-flex;
+  gap: 4px;
+  margin: 20px 0 24px;
+  padding: 4px;
+  border: 1px solid #dfe5ec;
+  border-radius: 10px;
+  background: #f4f6f8;
+}
+
+.tournament-switch button {
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 18px;
+  background: transparent;
+  color: #68778a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tournament-switch button.active {
+  background: #071b35;
+  color: #fff;
+  box-shadow: 0 2px 7px #0002;
+}
+
+.profiles-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.profile-card {
+  padding: 20px;
+  border: 1px solid #e3e8ee;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-card-header > strong {
+  color: #7b8795;
+  font-size: 11px;
+}
+
+.profile-card h3 {
+  margin: 8px 0 8px;
+  color: #102943;
+  font-size: 18px;
+}
+
+.profile-card > p {
+  min-height: 60px;
+  margin: 0 0 18px;
+  color: #647386;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.profile-players {
+  display: grid;
+  gap: 7px;
+  padding-top: 14px;
+  border-top: 1px solid #edf0f3;
+}
+
+.profile-player {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+}
+
+.profile-player strong {
+  color: #263d55;
+  font-size: 12px;
+}
+
+.profile-player span {
+  color: #8995a2;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+
+
+  .profiles-grid {
+    grid-template-columns: 1fr;
+  }
+}

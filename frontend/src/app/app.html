@@ -29,7 +29,13 @@
   [class.active]="currentPage === 'jugadores'"
   [attr.aria-current]="currentPage === 'jugadores' ? 'page' : null"
   (click)="$event.preventDefault(); navigateTo('jugadores')"
-><span class="nav-icon">♙</span><span>Jugadores</span></a><a class="nav-item" href="#pps"><span class="nav-icon">◎</span><span>PPS</span><span class="soon">Próximo</span></a><a class="nav-item" href="#equipo"><span class="nav-icon">◇</span><span>Equipo</span></a><a class="nav-item" href="#modelos"><span class="nav-icon">⌁</span><span>Modelos</span><span class="soon">Próximo</span></a></nav>
+><span class="nav-icon">♙</span><span>Jugadores</span></a><a
+  class="nav-item"
+  href="/clusters"
+  [class.active]="currentPage === 'clusters'"
+  [attr.aria-current]="currentPage === 'clusters' ? 'page' : null"
+  (click)="$event.preventDefault(); navigateTo('clusters')"
+><span class="nav-icon">◎</span><span>Perfiles</span></a><a class="nav-item" href="#equipo"><span class="nav-icon">◇</span><span>Equipo</span></a><a class="nav-item" href="#modelos"><span class="nav-icon">⌁</span><span>Modelos</span><span class="soon">Próximo</span></a></nav>
     <div class="sidebar-footer"><div class="live-dot"></div><div><strong>Datos de temporada</strong><span>Actualizados hoy, 09:42</span></div></div>
   </aside>
 

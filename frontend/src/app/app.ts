@@ -18,7 +18,7 @@ export class App implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly router = inject(Router);
 
-  currentPage: 'dashboard' | 'partidos' | 'jugadores' = 'dashboard';
+  currentPage: 'dashboard' | 'partidos' | 'jugadores' | 'clusters' = 'dashboard';
 
   latestMatch: Fixture | null = null;
   upcomingMatches: Fixture[] = [];
@@ -51,7 +51,7 @@ export class App implements OnInit {
   }
 
   navigateTo(
-    page: 'dashboard' | 'partidos' | 'jugadores'
+    page: 'dashboard' | 'partidos' | 'jugadores' | 'clusters'
   ): void {
     void this.router.navigate([page]);
   }
@@ -64,6 +64,11 @@ export class App implements OnInit {
 
     if (url.startsWith('/jugadores')) {
       this.currentPage = 'jugadores';
+      return;
+    }
+
+    if (url.startsWith('/clusters')) {
+      this.currentPage = 'clusters';
       return;
     }
 
