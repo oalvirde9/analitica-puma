@@ -1260,3 +1260,17 @@ button,input,select,textarea { font-family:inherit; }
   outline: 2px solid #244f82;
   outline-offset: 2px;
 }
+
+/* Logo de Analítica Puma */
+.brand-logo {
+  display: block;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  padding: 0;
+  object-fit: cover;
+  object-position: center 20%;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 4px 12px #0003;
+}
