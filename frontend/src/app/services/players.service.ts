@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api.config';
 
 export type TournamentName = 'Apertura' | 'Clausura';
 
@@ -63,10 +64,10 @@ export class PlayersService {
   private readonly http = inject(HttpClient);
 
   private readonly evaluationsApiUrl =
-    'http://127.0.0.1:8000/api/evaluations';
+    `${API_BASE_URL}/api/evaluations`;
 
   private readonly playersApiUrl =
-    'http://127.0.0.1:8000/api/players';
+    `${API_BASE_URL}/api/players`;
 
   getEvaluations(): Observable<PlayerEvaluationsResponse> {
     return this.http.get<PlayerEvaluationsResponse>(
